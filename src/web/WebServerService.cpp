@@ -12,12 +12,15 @@ void WebServerService::begin(){
  server_.on("/api/v1/setup",HTTP_POST,[this](){provision();});
  server_.on("/api/v1/accounts",HTTP_GET,[this](){accounts();});
  server_.on("/api/v1/accounts",HTTP_POST,[this](){saveAccount();});
+ server_.on("/api/v1/playlist",HTTP_GET,[this](){json(true,playlist_.toJson());});
+ server_.on("/api/v1/playlist",HTTP_PUT,[this](){savePlaylist();});
  server_.on("/generate_204",HTTP_GET,[this](){server_.sendHeader("Location","http://192.168.4.1/",true);server_.send(302,"text/plain","");});
  server_.on("/hotspot-detect.html",HTTP_GET,[this](){server_.send_P(200,"text/html",WEB_UI);});
  server_.on("/connecttest.txt",HTTP_GET,[this](){server_.sendHeader("Location","http://192.168.4.1/",true);server_.send(302,"text/plain","");});
  server_.onNotFound([this](){if(wifi_.setupMode()){server_.sendHeader("Location","http://192.168.4.1/",true);server_.send(302,"text/plain","");}else json(false,"null","{\"code\":\"NOT_FOUND\",\"message\":\"Route not found\"}",404);});
  server_.begin();
 }
+void WebServerService::savePlaylist(){if(!server_.hasArg("plain")||!playlist_.updateFromJson(server_.arg("plain"))){json(false,"null","{\"code\":\"INVALID_PLAYLIST\",\"message\":\"Select valid loop scenes\"}",400);return;}json(true,playlist_.toJson());}
 void WebServerService::accounts(){
  JsonDocument d;for(const char* platform:{"youtube","facebook","instagram"}){String key=String(platform)+"Url";d[platform]["url"]=accountStore_.getString(key.c_str(),"");d[platform]["connected"]=d[platform]["url"].as<String>().length()>0;d[platform]["status"]=d[platform]["connected"].as<bool>()?"Link saved — API authorization required for live metrics":"Not connected";}
  String out;serializeJson(d,out);json(true,out);

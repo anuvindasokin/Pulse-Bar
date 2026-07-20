@@ -1,10 +1,13 @@
 #include "app/AppController.h"
 #include <LittleFS.h>
+#include "BoardConfig.h"
 
 void AppController::begin() {
   Serial.println("[PulseBar] booting");
   if (!LittleFS.begin(true)) Serial.println("[PulseBar] LittleFS mount failed");
   display_.begin();
+  playlist_.begin();
+  if(PulseBarPins::STOPWATCH_SWITCH>=0)pinMode(PulseBarPins::STOPWATCH_SWITCH,INPUT_PULLUP);
   wifi_.begin();
   web_.begin();
   sceneStartedAt_ = millis();
@@ -16,11 +19,13 @@ void AppController::loop() {
   web_.loop();
   timer_.update();
   const uint32_t now = millis();
+  if(PulseBarPins::STOPWATCH_SWITCH>=0){bool down=digitalRead(PulseBarPins::STOPWATCH_SWITCH)==LOW;if(down&&!switchWasDown_){if(stopwatch_.running())stopwatch_.pause();else stopwatch_.start();}switchWasDown_=down;}
   if (now - lastFrameAt_ < 40) return;
   lastFrameAt_ = now;
-  if (now - sceneStartedAt_ > 8000) { scene_ = (scene_ + 1) % 3; sceneStartedAt_ = now; }
-  if (scene_ == 0) display_.showNumber(12480 + now / 10000);
-  else if (scene_ == 1) display_.showClock();
-  else if (timer_.isActive()) display_.showTime(timer_.remainingMs());
-  else display_.showText("PULSEBAR", now / 80);
+  if(stopwatch_.running()){display_.showTime(stopwatch_.elapsedMs());return;}
+  if(timer_.isActive()){display_.showTime(timer_.remainingMs());return;}
+  if(now-sceneStartedAt_>8000){scene_=playlist_.next(scene_);sceneStartedAt_=now;}
+  if(!playlist_.enabled(scene_))scene_=playlist_.next(scene_);
+  if(scene_==6)display_.showClock();
+  else {static const int64_t base[6]={12480,2384000,8320,914000,21600,510000};display_.showNumber(base[scene_]+now/10000);}
 }

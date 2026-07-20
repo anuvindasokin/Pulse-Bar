@@ -33,6 +33,12 @@ accounts = {
     "facebook": {"url": "", "connected": False, "status": "Not connected"},
     "instagram": {"url": "", "connected": False, "status": "Not connected"},
 }
+playlist = {"scenes": [
+    {"id": "youtubeSubscribers", "enabled": True}, {"id": "youtubeViews", "enabled": True},
+    {"id": "facebookFollowers", "enabled": True}, {"id": "facebookViews", "enabled": True},
+    {"id": "instagramFollowers", "enabled": True}, {"id": "instagramViews", "enabled": True},
+    {"id": "time", "enabled": True},
+]}
 
 
 def load_firmware_ui():
@@ -95,6 +101,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
             self.send_json({"success": True, "data": networks, "error": None})
         elif self.path == "/api/v1/accounts":
             self.send_json({"success": True, "data": accounts, "error": None})
+        elif self.path == "/api/v1/playlist":
+            self.send_json({"success": True, "data": playlist, "error": None})
         else:
             self.send_json({"success": False, "data": None, "error": {"code": "NOT_FOUND", "message": "Route not found"}}, 404)
 
@@ -150,6 +158,20 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.send_json({"success": False, "data": None, "error": {"code": "UNKNOWN_ACTION", "message": "Unknown action"}}, 400)
                 return
             self.send_json({"success": True, "data": {}, "error": None})
+        except (ValueError, json.JSONDecodeError) as error:
+            self.send_json({"success": False, "data": None, "error": {"code": "INVALID_REQUEST", "message": str(error)}}, 400)
+
+    def do_PUT(self):
+        try:
+            body = self.read_json()
+            if self.path != "/api/v1/playlist" or not isinstance(body.get("scenes"), list):
+                self.send_json({"success": False, "data": None, "error": {"code": "INVALID_PLAYLIST", "message": "Invalid playlist"}}, 400)
+                return
+            known = {item["id"] for item in playlist["scenes"]}
+            playlist["scenes"] = [{"id": item["id"], "enabled": bool(item.get("enabled"))} for item in body["scenes"] if item.get("id") in known]
+            if not any(item["enabled"] for item in playlist["scenes"]):
+                next(item for item in playlist["scenes"] if item["id"] == "time")["enabled"] = True
+            self.send_json({"success": True, "data": playlist, "error": None})
         except (ValueError, json.JSONDecodeError) as error:
             self.send_json({"success": False, "data": None, "error": {"code": "INVALID_REQUEST", "message": str(error)}}, 400)
 
