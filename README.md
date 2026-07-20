@@ -14,6 +14,16 @@ GPIO values intentionally default to `-1` in `include/BoardConfig.h`. Confirm yo
 4. Upload with `pio run -t upload`.
 5. Open the serial monitor with `pio device monitor`.
 
+## Open the interface on a PC
+
+Run the desktop simulator from PowerShell:
+
+```powershell
+.\preview.ps1
+```
+
+It opens `http://127.0.0.1:8080` and emulates the device API, including the stopwatch, timer, brightness, Wi-Fi scan, and setup flow. The preview reads the exact embedded interface from `src/web/WebUi.h` on every browser refresh. There is no duplicate web page to keep synchronized: firmware interface changes are therefore reflected in the desktop page automatically.
+
 On first boot PulseBar immediately starts the `PulseBar-Setup` access point. Connect with a phone or computer; its captive setup page should open automatically. If it does not, browse to `http://192.168.4.1`. Choose a network, enter its password, name the device, and choose a time zone. After it connects, use `http://pulsebar.local` on the same network.
 
 ## API
