@@ -28,6 +28,11 @@ state = {
 }
 stopwatch_started = None
 timer_started = None
+accounts = {
+    "youtube": {"url": "", "connected": False, "status": "Not connected"},
+    "facebook": {"url": "", "connected": False, "status": "Not connected"},
+    "instagram": {"url": "", "connected": False, "status": "Not connected"},
+}
 
 
 def load_firmware_ui():
@@ -88,6 +93,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 {"ssid": "Guest", "rssi": -74, "secure": False},
             ]
             self.send_json({"success": True, "data": networks, "error": None})
+        elif self.path == "/api/v1/accounts":
+            self.send_json({"success": True, "data": accounts, "error": None})
         else:
             self.send_json({"success": False, "data": None, "error": {"code": "NOT_FOUND", "message": "Route not found"}}, 404)
 
@@ -101,6 +108,14 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 state["timezone"] = body.get("timezone") or "UTC0"
                 state["setupRequired"] = False
                 self.send_json({"success": True, "data": {"message": "Desktop preview configured."}, "error": None})
+                return
+            if self.path == "/api/v1/accounts":
+                platform, url = body.get("platform", ""), body.get("url", "")
+                if platform not in accounts or not url.startswith(("http://", "https://")):
+                    self.send_json({"success": False, "data": None, "error": {"code": "INVALID_ACCOUNT", "message": "Enter a complete channel link."}}, 400)
+                    return
+                accounts[platform] = {"url": url, "connected": True, "status": "Link saved — API authorization required for live metrics"}
+                self.send_json({"success": True, "data": {"message": "Channel link saved"}, "error": None})
                 return
             if self.path != "/api/v1/control":
                 self.send_json({"success": False, "data": None, "error": {"code": "NOT_FOUND", "message": "Route not found"}}, 404)
