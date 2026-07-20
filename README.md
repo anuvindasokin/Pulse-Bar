@@ -14,7 +14,7 @@ GPIO values intentionally default to `-1` in `include/BoardConfig.h`. Confirm yo
 4. Upload with `pio run -t upload`.
 5. Open the serial monitor with `pio device monitor`.
 
-With no saved Wi-Fi connection, PulseBar starts the `PulseBar-Setup` access point after 12 seconds. Open the IP printed to serial (normally `192.168.4.1`) to use the dashboard.
+On first boot PulseBar immediately starts the `PulseBar-Setup` access point. Connect with a phone or computer; its captive setup page should open automatically. If it does not, browse to `http://192.168.4.1`. Choose a network, enter its password, name the device, and choose a time zone. After it connects, use `http://pulsebar.local` on the same network.
 
 ## API
 

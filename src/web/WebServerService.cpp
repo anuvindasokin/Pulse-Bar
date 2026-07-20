@@ -7,12 +7,22 @@ void WebServerService::begin(){
  server_.on("/",HTTP_GET,[this](){server_.send_P(200,"text/html",WEB_UI);});
  server_.on("/api/v1/status",HTTP_GET,[this](){status();});
  server_.on("/api/v1/control",HTTP_POST,[this](){command();});
- server_.onNotFound([this](){json(false,"null","{\"code\":\"NOT_FOUND\",\"message\":\"Route not found\"}",404);});
+ server_.on("/api/v1/network/scan",HTTP_GET,[this](){json(true,wifi_.scanJson());});
+ server_.on("/api/v1/setup",HTTP_POST,[this](){provision();});
+ server_.on("/generate_204",HTTP_GET,[this](){server_.sendHeader("Location","http://192.168.4.1/",true);server_.send(302,"text/plain","");});
+ server_.on("/hotspot-detect.html",HTTP_GET,[this](){server_.send_P(200,"text/html",WEB_UI);});
+ server_.on("/connecttest.txt",HTTP_GET,[this](){server_.sendHeader("Location","http://192.168.4.1/",true);server_.send(302,"text/plain","");});
+ server_.onNotFound([this](){if(wifi_.setupMode()){server_.sendHeader("Location","http://192.168.4.1/",true);server_.send(302,"text/plain","");}else json(false,"null","{\"code\":\"NOT_FOUND\",\"message\":\"Route not found\"}",404);});
  server_.begin();
 }
 void WebServerService::loop(){server_.handleClient();}
 void WebServerService::json(bool ok,const String& data,const String& error,int code){server_.send(code,"application/json",String("{\"success\":")+(ok?"true":"false")+",\"data\":"+data+",\"error\":"+error+"}");}
-void WebServerService::status(){JsonDocument d;d["name"]="PulseBar";d["version"]=PULSEBAR_VERSION;d["uptime"]=millis()/1000;d["wifi"]=wifi_.connected();d["mode"]=wifi_.modeName();d["ip"]=wifi_.ip();d["rssi"]=wifi_.rssi();d["brightness"]=display_.brightness();d["stopwatch"]["running"]=stopwatch_.running();d["stopwatch"]["elapsedMs"]=stopwatch_.elapsedMs();d["timer"]["running"]=timer_.running();d["timer"]["remainingMs"]=timer_.remainingMs();String out;serializeJson(d,out);json(true,out);}
+void WebServerService::status(){JsonDocument d;d["name"]=wifi_.deviceName();d["version"]=PULSEBAR_VERSION;d["uptime"]=millis()/1000;d["wifi"]=wifi_.connected();d["setupRequired"]=!wifi_.hasCredentials();d["mode"]=wifi_.modeName();d["ssid"]=wifi_.ssid();d["ip"]=wifi_.ip();d["rssi"]=wifi_.rssi();d["timezone"]=wifi_.timezone();d["brightness"]=display_.brightness();d["stopwatch"]["running"]=stopwatch_.running();d["stopwatch"]["elapsedMs"]=stopwatch_.elapsedMs();d["timer"]["running"]=timer_.running();d["timer"]["remainingMs"]=timer_.remainingMs();String out;serializeJson(d,out);json(true,out);}
+void WebServerService::provision(){
+ JsonDocument d;if(!server_.hasArg("plain")||deserializeJson(d,server_.arg("plain"))){json(false,"null","{\"code\":\"INVALID_JSON\",\"message\":\"Valid setup details are required\"}",400);return;}
+ String ssid=d["ssid"]|"",password=d["password"]|"",name=d["deviceName"]|"PulseBar",timezone=d["timezone"]|"UTC0";
+ if(!wifi_.configure(ssid,password,name,timezone)){json(false,"null","{\"code\":\"INVALID_SETUP\",\"message\":\"Check the network and device fields\"}",400);return;}json(true,"{\"message\":\"PulseBar is connecting. You can close this page.\"}");
+}
 void WebServerService::command(){
  if(!server_.hasArg("plain")){json(false,"null","{\"code\":\"BODY_REQUIRED\",\"message\":\"JSON body required\"}",400);return;}
  JsonDocument d;if(deserializeJson(d,server_.arg("plain"))){json(false,"null","{\"code\":\"INVALID_JSON\",\"message\":\"Invalid JSON\"}",400);return;}
