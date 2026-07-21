@@ -27,5 +27,5 @@ void AppController::loop() {
   if(now-sceneStartedAt_>uint32_t(playlist_.durationSeconds())*1000){scene_=playlist_.next(scene_);sceneStartedAt_=now;}
   if(!playlist_.enabled(scene_))scene_=playlist_.next(scene_);
   if(scene_==6)display_.showClock(playlist_.use24Hour());
-  else {static const int64_t base[6]={12480,2384000,8320,914000,21600,510000};int64_t value=base[scene_]+now/10000;if(scene_<2)display_.showNumber(value,CRGB(255,0,51));else if(scene_<4)display_.showNumber(value,CRGB(24,119,242));else display_.showNumberGradient(value,CRGB(255,45,149),CRGB(174,52,255),CRGB(92,45,145));}
+  else {static const int64_t base[6]={12480,2384000,8320,914000,21600,510000};int64_t value=base[scene_]+now/10000;bool views=scene_%2==1;if(scene_<2)display_.showMetric(value,views,CRGB(255,0,51));else if(scene_<4)display_.showMetric(value,views,CRGB(24,119,242));else display_.showMetricGradient(value,views,CRGB(255,45,149),CRGB(174,52,255),CRGB(92,45,145));}
 }

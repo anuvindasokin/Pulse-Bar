@@ -13,6 +13,8 @@ class DisplayManager {
   void showNumber(int64_t value);
   void showNumber(int64_t value, CRGB color);
   void showNumberGradient(int64_t value, CRGB start, CRGB middle, CRGB end);
+  void showMetric(int64_t value, bool views, CRGB color);
+  void showMetricGradient(int64_t value, bool views, CRGB start, CRGB middle, CRGB end);
   void showClock(bool use24Hour = true);
   void showTime(uint64_t ms);
   void showText(const String& text, uint32_t offset = 0);
@@ -21,6 +23,7 @@ class DisplayManager {
   void clear();
   void pixel(int x, int y, CRGB color);
   void glyph(char c, int x, CRGB color);
+  void metricIcon(bool views, CRGB color);
   void present();
   CRGB leds_[256];
   MatrixMapper mapper_;
