@@ -12,27 +12,16 @@ PulseBar uses official platform APIs. A public profile URL identifies an account
 
 Public channel subscriber and view statistics are available through `channels.list`. Public subscriber counts are rounded to three significant figures. See Google's [getting-started guide](https://developers.google.com/youtube/v3/getting-started) and [`channels.list` reference](https://developers.google.com/youtube/v3/docs/channels/list).
 
-## Facebook
+## Facebook and Instagram — one Meta connection
 
-1. Use a Facebook Page that the customer manages. Personal profiles are not Pages.
-2. Create an app in [Meta for Developers](https://developers.facebook.com/apps/).
-3. Add the appropriate Facebook Login/Pages use case and connect the Page.
-4. Follow Meta's current flow to generate a Page access token with the permissions required by the Pages endpoints PulseBar uses.
-5. Complete Meta App Review and switch the app to Live before serving customers outside its administrator/developer/tester roles.
-6. Enter the Page URL and Page access token in PulseBar.
+1. Use a Facebook Page that the customer manages and an Instagram Professional account (Business or Creator).
+2. Link the Instagram Professional account to that Facebook Page.
+3. Create one app in [Meta for Developers](https://developers.facebook.com/apps/) and configure the Facebook Login and Instagram API use cases required by PulseBar.
+4. Authorize the connected accounts once and enter the resulting Meta access token in either PulseBar tab. PulseBar stores it as a shared Meta credential, so the customer does not enter it twice.
+5. Add the Facebook Page URL and Instagram profile URL in their respective tabs.
+6. Complete Meta App Review and switch the app to Live before serving customers outside its administrator/developer/tester roles.
 
-Follow the [official Meta access-token guide](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/). Available metrics depend on Page access, app mode, API version, permissions, and review approval.
-
-## Instagram
-
-1. Use an Instagram Professional account (Business or Creator). Personal accounts do not expose the same insights APIs.
-2. Connect the account to a Facebook Page when required by Meta's current setup flow.
-3. Create a Meta developer app and add the Instagram API use case.
-4. Follow Meta's current authorization flow and request only the permissions required for profile and insights data.
-5. Complete App Review before authorizing customers outside the app's administrator/developer/tester roles.
-6. Enter the profile URL and access token in PulseBar.
-
-Follow Meta's [official Instagram API getting-started guide](https://developers.facebook.com/docs/instagram-platform/get-started/). Metric availability varies by account and media type; PulseBar must report unsupported metrics rather than inventing values.
+Personal Facebook profiles and personal Instagram accounts are not supported. Follow the [official Meta access-token guide](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/) and [Instagram API getting-started guide](https://developers.facebook.com/docs/instagram-platform/get-started/). Available metrics depend on account type, permissions, app mode, API version, and review approval.
 
 ## Security and production
 

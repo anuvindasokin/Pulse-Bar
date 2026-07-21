@@ -22,7 +22,7 @@ void WebServerService::begin(){
 }
 void WebServerService::savePlaylist(){if(!server_.hasArg("plain")||!playlist_.updateFromJson(server_.arg("plain"))){json(false,"null","{\"code\":\"INVALID_PLAYLIST\",\"message\":\"Select valid loop scenes\"}",400);return;}json(true,playlist_.toJson());}
 void WebServerService::accounts(){
- JsonDocument d;for(const char* platform:{"youtube","facebook","instagram"}){String key=String(platform)+"Url",secretKey=String(platform)+"Secret";d[platform]["url"]=accountStore_.getString(key.c_str(),"");bool linked=d[platform]["url"].as<String>().length()>0,authorized=accountStore_.getString(secretKey.c_str(),"").length()>0;d[platform]["connected"]=linked;d[platform]["authorized"]=authorized;d[platform]["status"]=linked&&authorized?"Credentials saved — ready for API test":linked?"Link saved — add API credentials below":"Not connected";}
+ JsonDocument d;bool metaAuthorized=accountStore_.getString("metaSecret","").length()>0;for(const char* platform:{"youtube","facebook","instagram"}){String key=String(platform)+"Url",secretKey=String(platform)+"Secret";d[platform]["url"]=accountStore_.getString(key.c_str(),"");bool linked=d[platform]["url"].as<String>().length()>0,authorized=String(platform)=="youtube"?accountStore_.getString(secretKey.c_str(),"").length()>0:metaAuthorized||accountStore_.getString(secretKey.c_str(),"").length()>0;d[platform]["connected"]=linked;d[platform]["authorized"]=authorized;d[platform]["status"]=linked&&authorized?"Connected":linked?"Link saved — connect Meta once":"Not connected";}d["meta"]["authorized"]=metaAuthorized;
  String out;serializeJson(d,out);json(true,out);
 }
 void WebServerService::saveAccount(){
@@ -30,7 +30,7 @@ void WebServerService::saveAccount(){
  String platform=d["platform"]|"",url=d["url"]|"",credential=d["credential"]|"";
  if(platform!="youtube"&&platform!="facebook"&&platform!="instagram"){json(false,"null","{\"code\":\"INVALID_PROVIDER\",\"message\":\"Choose YouTube, Facebook, or Instagram\"}",400);return;}
  if(url.length()>256||(!url.startsWith("https://")&&!url.startsWith("http://"))){json(false,"null","{\"code\":\"INVALID_URL\",\"message\":\"Enter a complete channel link\"}",400);return;}
- String key=platform+"Url",secretKey=platform+"Secret";accountStore_.putString(key.c_str(),url);if(credential.length()>0&&credential.length()<=512)accountStore_.putString(secretKey.c_str(),credential);json(true,"{\"message\":\"Account settings saved\"}");
+ String key=platform+"Url",secretKey=platform+"Secret";accountStore_.putString(key.c_str(),url);if(credential.length()>0&&credential.length()<=512){if(platform=="facebook"||platform=="instagram")accountStore_.putString("metaSecret",credential);else accountStore_.putString(secretKey.c_str(),credential);}json(true,"{\"message\":\"Account settings saved\"}");
 }
 void WebServerService::loop(){server_.handleClient();}
 void WebServerService::json(bool ok,const String& data,const String& error,int code){server_.send(code,"application/json",String("{\"success\":")+(ok?"true":"false")+",\"data\":"+data+",\"error\":"+error+"}");}

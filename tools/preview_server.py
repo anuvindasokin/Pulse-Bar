@@ -34,6 +34,7 @@ accounts = {
     "facebook": {"url": "", "connected": False, "status": "Not connected"},
     "instagram": {"url": "", "connected": False, "status": "Not connected"},
 }
+meta_authorized = False
 playlist = {"clockFormat": "24", "durationSeconds": 8, "transition": "instant", "scenes": [
     {"id": "youtubeSubscribers", "enabled": True}, {"id": "youtubeViews", "enabled": True},
     {"id": "facebookFollowers", "enabled": True}, {"id": "facebookViews", "enabled": True},
@@ -119,12 +120,18 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 self.send_json({"success": True, "data": {"message": "Desktop preview configured."}, "error": None})
                 return
             if self.path == "/api/v1/accounts":
+                global meta_authorized
                 platform, url = body.get("platform", ""), body.get("url", "")
                 if platform not in accounts or not url.startswith(("http://", "https://")):
                     self.send_json({"success": False, "data": None, "error": {"code": "INVALID_ACCOUNT", "message": "Enter a complete channel link."}}, 400)
                     return
-                configured = bool(body.get("credential")) or accounts[platform].get("authorized", False)
+                if platform in {"facebook", "instagram"} and body.get("credential"):
+                    meta_authorized = True
+                configured = meta_authorized if platform in {"facebook", "instagram"} else bool(body.get("credential")) or accounts[platform].get("authorized", False)
                 accounts[platform] = {"url": url, "connected": True, "authorized": configured, "status": "Credentials saved — ready for API test" if configured else "Link saved — add API credentials below"}
+                if meta_authorized:
+                    for meta_platform in ("facebook", "instagram"):
+                        accounts[meta_platform]["authorized"] = True
                 self.send_json({"success": True, "data": {"message": "Channel link saved"}, "error": None})
                 return
             if self.path != "/api/v1/control":
