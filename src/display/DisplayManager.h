@@ -23,7 +23,7 @@ class DisplayManager {
   void clear();
   void pixel(int x, int y, CRGB color);
   void glyph(char c, int x, CRGB color);
-  void metricIcon(bool views, CRGB color);
+  void metricIcon(bool views, CRGB color, int x);
   void present();
   CRGB leds_[256];
   MatrixMapper mapper_;
