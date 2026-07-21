@@ -26,6 +26,6 @@ void AppController::loop() {
   if(timer_.isActive()){display_.showTime(timer_.remainingMs());return;}
   if(now-sceneStartedAt_>8000){scene_=playlist_.next(scene_);sceneStartedAt_=now;}
   if(!playlist_.enabled(scene_))scene_=playlist_.next(scene_);
-  if(scene_==6)display_.showClock();
+  if(scene_==6)display_.showClock(playlist_.use24Hour());
   else {static const int64_t base[6]={12480,2384000,8320,914000,21600,510000};display_.showNumber(base[scene_]+now/10000);}
 }

@@ -10,8 +10,10 @@ class PlaylistService {
   uint8_t next(uint8_t current) const;
   String toJson() const;
   bool updateFromJson(const String& json);
+  bool use24Hour() const { return use24Hour_; }
  private:
   void save();
   Preferences store_;
   bool enabled_[SCENE_COUNT] = {true,true,true,true,true,true,true};
+  bool use24Hour_ = true;
 };

@@ -11,7 +11,7 @@ class DisplayManager {
   void setColor(uint32_t value) { color_ = CRGB(value); }
   uint32_t color() const { return (uint32_t(color_.r)<<16)|(uint32_t(color_.g)<<8)|color_.b; }
   void showNumber(int64_t value);
-  void showClock();
+  void showClock(bool use24Hour = true);
   void showTime(uint64_t ms);
   void showText(const String& text, uint32_t offset = 0);
   void testPattern();
