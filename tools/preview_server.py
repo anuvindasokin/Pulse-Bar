@@ -34,7 +34,7 @@ accounts = {
     "facebook": {"url": "", "connected": False, "status": "Not connected"},
     "instagram": {"url": "", "connected": False, "status": "Not connected"},
 }
-playlist = {"clockFormat": "24", "scenes": [
+playlist = {"clockFormat": "24", "durationSeconds": 8, "scenes": [
     {"id": "youtubeSubscribers", "enabled": True}, {"id": "youtubeViews", "enabled": True},
     {"id": "facebookFollowers", "enabled": True}, {"id": "facebookViews", "enabled": True},
     {"id": "instagramFollowers", "enabled": True}, {"id": "instagramViews", "enabled": True},
@@ -176,6 +176,7 @@ class PreviewHandler(BaseHTTPRequestHandler):
             known = {item["id"] for item in playlist["scenes"]}
             playlist["scenes"] = [{"id": item["id"], "enabled": bool(item.get("enabled"))} for item in body["scenes"] if item.get("id") in known]
             playlist["clockFormat"] = "12" if body.get("clockFormat") == "12" else "24"
+            playlist["durationSeconds"] = max(2, min(60, int(body.get("durationSeconds", 8))))
             if not any(item["enabled"] for item in playlist["scenes"]):
                 next(item for item in playlist["scenes"] if item["id"] == "time")["enabled"] = True
             self.send_json({"success": True, "data": playlist, "error": None})
