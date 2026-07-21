@@ -123,7 +123,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
                 if platform not in accounts or not url.startswith(("http://", "https://")):
                     self.send_json({"success": False, "data": None, "error": {"code": "INVALID_ACCOUNT", "message": "Enter a complete channel link."}}, 400)
                     return
-                accounts[platform] = {"url": url, "connected": True, "status": "Link saved — API authorization required for live metrics"}
+                configured = bool(body.get("credential")) or accounts[platform].get("authorized", False)
+                accounts[platform] = {"url": url, "connected": True, "authorized": configured, "status": "Credentials saved — ready for API test" if configured else "Link saved — add API credentials below"}
                 self.send_json({"success": True, "data": {"message": "Channel link saved"}, "error": None})
                 return
             if self.path != "/api/v1/control":
