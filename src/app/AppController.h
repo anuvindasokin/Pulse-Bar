@@ -22,6 +22,7 @@ class AppController {
   WebServerService web_{display_, wifi_, stopwatch_, timer_, playlist_};
   uint32_t lastFrameAt_ = 0;
   uint32_t sceneStartedAt_ = 0;
+  uint32_t metricsUpdatedAt_ = 0;
   uint8_t scene_ = 0;
   bool switchWasDown_ = false;
 };

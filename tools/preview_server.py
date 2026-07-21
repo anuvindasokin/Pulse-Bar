@@ -5,6 +5,7 @@ import argparse
 import json
 import re
 import time
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -35,6 +36,7 @@ accounts = {
     "instagram": {"url": "", "connected": False, "status": "Not connected"},
 }
 meta_authorized = False
+connect_config = {"configured": False, "backendUrl": "", "deviceId": ""}
 playlist = {"clockFormat": "24", "durationSeconds": 8, "transition": "instant", "scenes": [
     {"id": "youtubeSubscribers", "enabled": True}, {"id": "youtubeViews", "enabled": True},
     {"id": "facebookFollowers", "enabled": True}, {"id": "facebookViews", "enabled": True},
@@ -103,6 +105,10 @@ class PreviewHandler(BaseHTTPRequestHandler):
             self.send_json({"success": True, "data": networks, "error": None})
         elif self.path == "/api/v1/accounts":
             self.send_json({"success": True, "data": accounts, "error": None})
+        elif self.path == "/api/v1/connect/status":
+            self.send_json({"success": True, "data": connect_config, "error": None})
+        elif self.path == "/api/v1/metrics":
+            self.send_json({"success": True, "data": {"facebook": {"connected": True, "followers": 8320, "views": 9140}, "instagram": {"connected": True, "followers": 21600, "views": 5100}, "updatedAt": datetime.now(timezone.utc).isoformat(), "warnings": []}, "error": None})
         elif self.path == "/api/v1/playlist":
             self.send_json({"success": True, "data": playlist, "error": None})
         else:
@@ -133,6 +139,17 @@ class PreviewHandler(BaseHTTPRequestHandler):
                     for meta_platform in ("facebook", "instagram"):
                         accounts[meta_platform]["authorized"] = True
                 self.send_json({"success": True, "data": {"message": "Channel link saved"}, "error": None})
+                return
+            if self.path == "/api/v1/connect/config":
+                backend, device_id, token = body.get("backendUrl", ""), body.get("deviceId", ""), body.get("deviceToken", "")
+                if not backend.startswith("https://") or len(device_id) < 3 or len(token) < 16:
+                    self.send_json({"success": False, "data": None, "error": {"code": "INVALID_CONNECT_CONFIG", "message": "Use an HTTPS backend and valid device credentials."}}, 400)
+                    return
+                connect_config.update({"configured": True, "backendUrl": backend.rstrip("/"), "deviceId": device_id})
+                self.send_json({"success": True, "data": connect_config, "error": None})
+                return
+            if self.path == "/api/v1/connect/link":
+                self.send_json({"success": True, "data": {"url": "https://www.facebook.com/dialog/oauth?client_id=pulsebar-preview", "expiresIn": 600}, "error": None})
                 return
             if self.path != "/api/v1/control":
                 self.send_json({"success": False, "data": None, "error": {"code": "NOT_FOUND", "message": "Route not found"}}, 404)
