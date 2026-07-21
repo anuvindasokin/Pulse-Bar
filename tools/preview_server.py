@@ -23,6 +23,7 @@ state = {
     "rssi": -48,
     "timezone": "IST-5:30",
     "brightness": 48,
+    "color": "#FF4D91",
     "stopwatch": {"running": False, "elapsedMs": 0},
     "timer": {"running": False, "remainingMs": 0},
 }
@@ -131,6 +132,11 @@ class PreviewHandler(BaseHTTPRequestHandler):
             action = body.get("action", "")
             if action == "brightness":
                 state["brightness"] = max(1, min(255, int(body.get("value", 48))))
+            elif action == "color":
+                value = str(body.get("value", "#FF4D91"))
+                if not re.fullmatch(r"#[0-9a-fA-F]{6}", value):
+                    raise ValueError("Invalid display color")
+                state["color"] = value.upper()
             elif action == "stopwatchStart" and not state["stopwatch"]["running"]:
                 state["stopwatch"]["running"] = True
                 stopwatch_started = time.monotonic()

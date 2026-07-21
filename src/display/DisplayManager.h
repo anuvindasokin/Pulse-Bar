@@ -8,6 +8,8 @@ class DisplayManager {
   void begin();
   void setBrightness(uint8_t value);
   uint8_t brightness() const { return brightness_; }
+  void setColor(uint32_t value) { color_ = CRGB(value); }
+  uint32_t color() const { return (uint32_t(color_.r)<<16)|(uint32_t(color_.g)<<8)|color_.b; }
   void showNumber(int64_t value);
   void showClock();
   void showTime(uint64_t ms);
@@ -22,4 +24,5 @@ class DisplayManager {
   MatrixMapper mapper_;
   uint8_t brightness_ = 48;
   bool hardwareEnabled_ = false;
+  CRGB color_ = CRGB(255, 77, 145);
 };

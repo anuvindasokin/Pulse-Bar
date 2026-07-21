@@ -14,8 +14,8 @@ void DisplayManager::clear() { fill_solid(leds_, 256, CRGB::Black); }
 void DisplayManager::pixel(int x,int y,CRGB c){ if(x<0||x>31||y<0||y>7)return; auto i=mapper_.map(x,y); if(i<256)leds_[i]=c; }
 void DisplayManager::present(){ if(hardwareEnabled_) FastLED.show(); }
 void DisplayManager::glyph(char c,int x,CRGB color){ if(c<'0'||c>'9')return; auto& g=DIGITS[c-'0']; for(int y=0;y<5;y++)for(int b=0;b<3;b++)if(g[y]&(1<<(2-b)))pixel(x+b,y+1,color); }
-void DisplayManager::showNumber(int64_t v){ clear(); String s=String(v); int x=max(0,(32-(int)s.length()*4+1)/2); for(char c:s){glyph(c,x,CRGB(0,180,255));x+=4;}present(); }
+void DisplayManager::showNumber(int64_t v){ clear(); String s=String(v); int x=max(0,(32-(int)s.length()*4+1)/2); for(char c:s){glyph(c,x,color_);x+=4;}present(); }
 void DisplayManager::showTime(uint64_t ms){ uint32_t sec=ms/1000; char b[9]; snprintf(b,sizeof(b),"%02lu:%02lu",(unsigned long)(sec/60),(unsigned long)(sec%60)); showText(b,0); }
 void DisplayManager::showClock(){ struct tm t; if(!getLocalTime(&t,0)){showText("--:--",0);return;} char b[6]; strftime(b,sizeof(b),"%H:%M",&t); showText(b,0); }
-void DisplayManager::showText(const String& text,uint32_t offset){ clear(); int width=text.length()*4; int x=width<=32?(32-width)/2:32-(offset%(width+32)); for(char c:text){ if(c>='0'&&c<='9')glyph(c,x,CRGB(255,80,140)); else { uint8_t seed=(uint8_t)c; for(int y=1;y<6;y++)for(int b=0;b<3;b++)if((seed>>(b+(y&1)))&1)pixel(x+b,y,CRGB(100,220,255)); } x+=4;} present(); }
+void DisplayManager::showText(const String& text,uint32_t offset){ clear(); int width=text.length()*4; int x=width<=32?(32-width)/2:32-(offset%(width+32)); for(char c:text){ if(c>='0'&&c<='9')glyph(c,x,color_); else { uint8_t seed=(uint8_t)c; for(int y=1;y<6;y++)for(int b=0;b<3;b++)if((seed>>(b+(y&1)))&1)pixel(x+b,y,color_); } x+=4;} present(); }
 void DisplayManager::testPattern(){ clear(); for(int x=0;x<32;x++)for(int y=0;y<8;y++)pixel(x,y,CHSV(x*8,255,120));present(); }
