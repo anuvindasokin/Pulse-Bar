@@ -28,6 +28,8 @@ On first boot PulseBar immediately starts the `PulseBar-Setup` access point. Con
 
 ## API
 
+See [Social API setup](docs/social-api-setup.md) for customer credential instructions. The same guide is available inside the account connection interface.
+
 - `GET /api/v1/status` returns live device, network, stopwatch, and timer state.
 - `POST /api/v1/control` accepts an action such as `stopwatchStart`, `timerStart`, `brightness`, or `displayTest`.
 
