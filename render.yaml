@@ -2,6 +2,7 @@ services:
   - type: web
     name: pulsebar-connect
     runtime: node
+    plan: starter
     rootDir: cloud
     buildCommand: npm install
     startCommand: npm start
@@ -19,11 +20,15 @@ services:
         generateValue: true
       - key: DATA_ENCRYPTION_KEY
         generateValue: true
-      - key: DEVICE_KEYS
+      - key: ADMIN_TOKEN
         sync: false
-      - key: DATA_FILE
-        value: /var/data/pulsebar-connect.json
-    disk:
-      name: pulsebar-data
-      mountPath: /var/data
-      sizeGB: 1
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pulsebar-db
+          property: connectionString
+
+databases:
+  - name: pulsebar-db
+    plan: basic-256mb
+    databaseName: pulsebar
+    user: pulsebar

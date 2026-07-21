@@ -19,9 +19,9 @@ Customers no longer paste Meta tokens into PulseBar. The seller deploys the incl
 1. Deploy PulseBar Connect using `render.yaml` and follow `cloud/README.md`.
 2. Create one app in [Meta for Developers](https://developers.facebook.com/apps/) and configure its OAuth callback, privacy policy, data-deletion URL, Facebook Login, and Instagram API permissions.
 3. Complete Meta App Review and switch the app to Live before serving customers outside its administrator/developer/tester roles.
-4. Give every PulseBar a unique device ID and secret in the backend's `DEVICE_KEYS` configuration.
-5. Configure the backend URL and matching device credentials once in PulseBar's installer panel.
-6. The customer presses the Connect button and signs in only on Meta's page. PulseBar Connect encrypts the resulting Page token at rest and supplies normalized counters to the device.
+4. Provision every manufactured PulseBar with `tools/provision_device.py`; this creates its database record, unique secret, and one-time claim code.
+5. Put the device ID/secret in the installer panel and give the customer only the ID/claim code.
+6. The customer creates a PulseBar account, claims one or more devices, authorizes Meta, and selects the correct Page. PulseBar Connect encrypts the Page token at rest and supplies normalized counters only to the authenticated device.
 
 Personal Facebook profiles and personal Instagram accounts are not supported. Follow the [official Meta access-token guide](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/) and [Instagram API getting-started guide](https://developers.facebook.com/docs/instagram-platform/get-started/). Available metrics depend on account type, permissions, app mode, API version, and review approval.
 

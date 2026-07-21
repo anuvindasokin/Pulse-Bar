@@ -30,7 +30,7 @@ On first boot PulseBar immediately starts the `PulseBar-Setup` access point. Con
 
 See [Social API setup](docs/social-api-setup.md) for customer credential instructions. The same guide is available inside the account connection interface.
 
-Facebook and Instagram use the included [PulseBar Connect backend](cloud/README.md), which is deployable on Render through `render.yaml`. It keeps Meta application credentials and user access tokens out of the ESP32 firmware.
+Facebook and Instagram use the included multi-customer [PulseBar Connect backend](cloud/README.md), deployable on Render through `render.yaml`. It provides customer login, one-time device claiming, PostgreSQL ownership records, Page selection, and encrypted social connections while keeping Meta credentials out of ESP32 firmware.
 
 - `GET /api/v1/status` returns live device, network, stopwatch, and timer state.
 - `POST /api/v1/control` accepts an action such as `stopwatchStart`, `timerStart`, `brightness`, or `displayTest`.
