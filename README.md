@@ -24,6 +24,12 @@ Run the desktop simulator from PowerShell:
 
 It opens `http://127.0.0.1:8080` and emulates the device API, including the stopwatch, timer, brightness, Wi-Fi scan, and setup flow. The preview reads the exact embedded interface from `src/web/WebUi.h` on every browser refresh. There is no duplicate web page to keep synchronized: firmware interface changes are therefore reflected in the desktop page automatically.
 
+## Share the interface publicly
+
+`render-demo.yaml` deploys the same simulator as a public, mobile-friendly Render web service. In Render, create a new Blueprint and select `render-demo.yaml` from this repository. Render will provide a shareable `https://pulsebar-interface-demo.onrender.com`-style URL after the first deploy.
+
+The public demo serves the interface directly from `src/web/WebUi.h`, just like the firmware and desktop preview. Its controls use simulated data and do not connect to or change a physical PulseBar. The free Render service may take a short time to wake after it has been idle.
+
 On first boot PulseBar immediately starts the `PulseBar-Setup` access point. Connect with a phone or computer; its captive setup page should open automatically. If it does not, browse to `http://192.168.4.1`. Choose a network, enter its password, name the device, and choose a time zone. After it connects, use `http://pulsebar.local` on the same network.
 
 ## API

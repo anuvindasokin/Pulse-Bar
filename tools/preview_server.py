@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import os
 import re
 import time
 from datetime import datetime, timezone
@@ -111,6 +112,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
             self.send_json({"success": True, "data": {"facebook": {"connected": True, "followers": 8320, "views": 9140}, "instagram": {"connected": True, "followers": 21600, "views": 5100}, "updatedAt": datetime.now(timezone.utc).isoformat(), "warnings": []}, "error": None})
         elif self.path == "/api/v1/playlist":
             self.send_json({"success": True, "data": playlist, "error": None})
+        elif self.path == "/health":
+            self.send_json({"ok": True})
         else:
             self.send_json({"success": False, "data": None, "error": {"code": "NOT_FOUND", "message": "Route not found"}}, 404)
 
@@ -213,8 +216,8 @@ class PreviewHandler(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description="Run the PulseBar firmware UI on this PC")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8080)
+    parser.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8080")))
     args = parser.parse_args()
     server = ThreadingHTTPServer((args.host, args.port), PreviewHandler)
     print(f"PulseBar desktop preview: http://{args.host}:{args.port}")
